@@ -24,7 +24,7 @@ const parser = new Readline();
 
 
 const xbee = new SerialPort(
-    '/dev/ttyUSB0',
+    'COM3',
     {baudRate: 9600}
 )
 
@@ -37,20 +37,34 @@ xbee.on('open', ()=> {
 })
 
 var buffer = '';
-var Accels = null;
+var sensors = null;
 xbee.on('data', (line) => {
     buffer += line;
     var bufferAux = buffer.split("//");
     //console.log('buffer: ' + buffer)
     
     if (bufferAux.length > 1) {
-        Accels = bufferAux[0].split("/");
+        sensors = bufferAux[0].split("/");
         buffer = buffer.replace(bufferAux[0] + "//", "");
-        //console.log(Accels);
+        console.log(sensors);
         io.emit('xbee:data', {
-            x: Accels[0],
-            y: Accels[1],
-            z: Accels[2],
+            latitude: sensors[0],
+            longitud: sensors[1],
+            sat: sensors[2],
+            vel: sensors[3],
+            alt: sensors[4],
+            dia: sensors[5],
+            mes: sensors[6],
+            hora: sensors[7],
+            min: sensors[8],
+            dirv: sensors[9],
+            velv: sensors[10],
+            tempInterna: sensors[11],
+            presion: sensors[12],
+            r1: sensors[13],
+            r2: sensors[14],
+            r3: sensors[15], 
+            r4: sensors[16],
     });
     }
     
