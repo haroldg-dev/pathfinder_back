@@ -23,15 +23,14 @@ const Readline = SerialPort.parsers.Readline;
 const parser = new Readline();
 
 
-/* const xbee = new SerialPort(
+const xbee = new SerialPort(
     'COM3',
     {baudRate: 9600}
 )
- */
-const xbee = new SerialPort(
+/*const xbee = new SerialPort(
     '/dev/ttyUSB0',
     {baudRate: 9600}
-)
+)*/
 
 xbee.write('INICIO GATEWAY');
 
@@ -52,24 +51,31 @@ xbee.on('data', (line) => {
         sensors = bufferAux[0].split("/");
         buffer = buffer.replace(bufferAux[0] + "//", "");
         //console.log(sensors);
-        io.emit('xbee:data', {
+        io.emit('xbee:gps', {
             latitude: sensors[0],
             longitud: sensors[1],
-            sat: sensors[2],
-            vel: sensors[3],
-            alt: sensors[4],
+        })
+        io.emit('xbee:space', {
+            inclinacion1: sensors[9],
+            inclinacion2: sensors[10],
+            brujula: sensors[11],
+        })
+        io.emit('xbee:date', {
             dia: sensors[5],
             mes: sensors[6],
             hora: sensors[7],
             min: sensors[8],
-            dirViento: sensors[9],
-            velViento: sensors[10],
-            tempInterna: sensors[11],
+        })
+        io.emit('xbee:sensores', {
+            sat: sensors[2],
+            velocidadCuerpo: sensors[3],
+            altitud: sensors[4],
             presion: sensors[12],
-            posVela1: sensors[13],
-            posVela2: sensors[14],
-            posTimon1: sensors[15], 
-            posTimon2: sensors[16],
+            //dirV: sensors[13],
+            dirViento: sensors[14],
+            temperatura: sensors[15], 
+            humedad: sensors[16],
+            //servo: sensors[17]
     });
     }
     
