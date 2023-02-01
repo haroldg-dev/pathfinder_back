@@ -1,91 +1,87 @@
-const express = require('express');
-const http = require('http');
+const express = require("express");
+const http = require("http");
 
 const app = express();
 const server = http.createServer(app);
-const io = require('socket.io')(server, {
-    cors: {
-    origin: '*',
-    methods: ['GET', 'POST']
-  }
+const io = require("socket.io")(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
 });
 
-io.on('connection', (socket)=> {
-    console.log('nuevo socket conectado');
+io.on("connection", (socket) => {
+  console.log("nuevo socket conectado");
 });
 
-app.get('/', (req, res, next) => {
-    res.sendFile(__dirname + '/index.html');
+app.get("/", (req, res, next) => {
+  res.sendFile(__dirname + "/index.html");
 });
 
-const SerialPort = require('serialport');
+const SerialPort = require("serialport");
 const Readline = SerialPort.parsers.Readline;
 const parser = new Readline();
 
-
-const xbee = new SerialPort(
+/* const xbee = new SerialPort(
     'COM3',
     {baudRate: 9600}
-)
-/*const xbee = new SerialPort(
-    '/dev/ttyUSB0',
-    {baudRate: 9600}
-)*/
+) */
+const xbee = new SerialPort("/dev/ttyUSB0", { baudRate: 9600 });
 
-xbee.write('INICIO GATEWAY');
+xbee.write("INICIO GATEWAY");
 
 xbee.pipe(parser);
 
-xbee.on('open', ()=> {
-    console.log('Puerto abierto');
-})
+xbee.on("open", () => {
+  console.log("Puerto abierto");
+});
 
-var buffer = '';
+var buffer = "";
 var sensors = null;
-xbee.on('data', (line) => {
-    buffer += line;
-    var bufferAux = buffer.split("//");
-    //console.log('buffer: ' + buffer)
-    
-    if (bufferAux.length > 1) {
-        sensors = bufferAux[0].split("/");
-        buffer = buffer.replace(bufferAux[0] + "//", "");
-        //console.log(sensors);
-        io.emit('xbee:gps', {
-            latitude: sensors[0],
-            longitud: sensors[1],
-        })
-        io.emit('xbee:space', {
-            inclinacion1: sensors[9],
-            inclinacion2: sensors[10],
-            brujula: sensors[11],
-        })
-        io.emit('xbee:date', {
-            dia: sensors[5],
-            mes: sensors[6],
-            hora: sensors[7],
-            min: sensors[8],
-        })
-        io.emit('xbee:sensores', {
-            sat: sensors[2],
-            velocidadCuerpo: sensors[3],
-            altitud: sensors[4],
-            presion: sensors[12],
-            //dirV: sensors[13],
-            dirViento: sensors[14],
-            temperatura: sensors[15], 
-            humedad: sensors[16],
-            //servo: sensors[17]
-    });
-    }
-    
-    //xbee.write('Recibido');
-})
+xbee.on("data", (line) => {
+  buffer += line;
+  var bufferAux = buffer.split("//");
+  //console.log('buffer: ' + buffer)
 
-xbee.on('err', (err) => {
-    console.log(err.message);
-})
+  if (bufferAux.length > 1) {
+    sensors = bufferAux[0].split("/");
+    buffer = buffer.replace(bufferAux[0] + "//", "");
+    //console.log(sensors);
+    io.emit("xbee:gps", {
+      latitude: sensors[0],
+      longitud: sensors[1],
+    });
+    io.emit("xbee:space", {
+      accelx: sensors[9],
+      accely: sensors[10],
+      brujula: sensors[11],
+    });
+    io.emit("xbee:date", {
+      dia: sensors[5],
+      mes: sensors[6],
+      hora: sensors[7],
+      min: sensors[8],
+    });
+    io.emit("xbee:sensores", {
+      sat: sensors[2],
+      velocidadCuerpo: sensors[3],
+      altitud: sensors[4],
+      presion: sensors[12],
+      dirViento: sensors[13],
+      velViento: sensors[14],
+      tempInterna: sensors[15],
+      humedad: sensors[16],
+      //servo: sensors[17]
+    });
+  }
+
+  //xbee.write('Recibido');
+});
+
+xbee.on("err", (err) => {
+  console.log(err.message);
+});
 
 server.listen(4000, () => {
-    console.log('Servidor en puerto', 4000);
-})
+  console.log("Servidor en puerto", 4000);
+});
