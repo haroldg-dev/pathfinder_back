@@ -26,6 +26,7 @@ const parser = new Readline();
     'COM3',
     {baudRate: 9600}
 ) */
+
 const xbee = new SerialPort("/dev/ttyUSB0", { baudRate: 9600 });
 
 xbee.write("INICIO GATEWAY");
@@ -48,8 +49,16 @@ xbee.on("data", (line) => {
     buffer = buffer.replace(bufferAux[0] + "//", "");
     //console.log(sensors);
     io.emit("xbee:gps", {
-      latitude: sensors[0],
-      longitud: sensors[1],
+      lat: sensors[0],
+      lng: sensors[1],
+      sat: sensors[2],
+      velocidadCuerpo: sensors[3],
+      altitud: sensors[4],
+      presion: sensors[12],
+      dirViento: sensors[13],
+      velViento: sensors[14],
+      tempInterna: sensors[15],
+      humedad: sensors[16],
     });
     io.emit("xbee:space", {
       accelx: sensors[9],
