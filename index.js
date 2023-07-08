@@ -48,39 +48,24 @@ xbee.on("data", (line) => {
     sensors = bufferAux[0].split("/");
     buffer = buffer.replace(bufferAux[0] + "//", "");
     //console.log(sensors);
-    io.emit("xbee:gps", {
+    io.emit("xbee:datos", {
       lat: sensors[0],
       lng: sensors[1],
       sat: sensors[2],
       velocidadCuerpo: sensors[3],
       altitud: sensors[4],
-      presion: sensors[12],
-      dirViento: sensors[13],
-      velViento: sensors[14],
-      tempInterna: sensors[15],
-      humedad: sensors[16],
-    });
-    io.emit("xbee:space", {
-      accelx: sensors[9],
-      accely: sensors[10],
-      brujula: sensors[11],
-    });
-    io.emit("xbee:date", {
       dia: sensors[5],
       mes: sensors[6],
       hora: sensors[7],
       min: sensors[8],
-    });
-    io.emit("xbee:sensores", {
-      sat: sensors[2],
-      velocidadCuerpo: sensors[3],
-      altitud: sensors[4],
+      accelx: sensors[9],
+      accely: sensors[10],
+      brujula: sensors[11],
       presion: sensors[12],
       dirViento: sensors[13],
       velViento: sensors[14],
       tempInterna: sensors[15],
       humedad: sensors[16],
-      //servo: sensors[17]
     });
   }
 
