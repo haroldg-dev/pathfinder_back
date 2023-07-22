@@ -14,6 +14,10 @@ io.on("connection", (socket) => {
   console.log("nuevo socket conectado");
 });
 
+io.on("xbee:mision", (markerList)=>{
+  console.log(markerList)
+})
+
 app.get("/", (req, res, next) => {
   res.sendFile(__dirname + "/index.html");
 });
@@ -22,12 +26,12 @@ const SerialPort = require("serialport");
 const Readline = SerialPort.parsers.Readline;
 const parser = new Readline();
 
-/* const xbee = new SerialPort(
+const xbee = new SerialPort(
     'COM3',
-    {baudRate: 9600}
-) */
+    {baudRate: 57600}
+)
 
-const xbee = new SerialPort("/dev/ttyUSB0", { baudRate: 9600 });
+//const xbee = new SerialPort("/dev/ttyUSB0", { baudRate: 9600 });
 
 xbee.write("INICIO GATEWAY");
 
@@ -39,6 +43,30 @@ xbee.on("open", () => {
 
 var buffer = "";
 var sensors = null;
+
+var alarmadb = [
+  "LOW BATTERY 1", 
+  "LOW BATTERY 2", 
+  "STUCK RUDDER 1",
+  "STUCK RUDDER 2",
+  "STUCK SAIL 1",
+  "STUCK SAIL 2",
+  "GPS OFFLINE",
+  "GIROSCOPIO OFFLINE",
+  "VIENTO EN CONTRA",
+  "VELOCIDAD DE VIENTO ELEVADO",
+  "DESVIO DEL RUMBO",
+  "INCLINACION ELEVADA",
+  "FILTRACION DE AGUA",
+  "VELERO TOO FAR",
+  "FALLA COMUNICACION DE PLACA A RPI",
+  "FALLA COMUNICACION XBEE",
+]
+
+// COMO ENVIO WAYPOINTS
+// DISTACIA DE VELERO A ESTACION
+// TRAMA DE CONTROL
+
 xbee.on("data", (line) => {
   buffer += line;
   var bufferAux = buffer.split("//");
@@ -47,7 +75,7 @@ xbee.on("data", (line) => {
   if (bufferAux.length > 1) {
     sensors = bufferAux[0].split("/");
     buffer = buffer.replace(bufferAux[0] + "//", "");
-    //console.log(sensors);
+    console.log(sensors);
     io.emit("xbee:datos", {
       lat: sensors[0],
       lng: sensors[1],
@@ -61,11 +89,19 @@ xbee.on("data", (line) => {
       accelx: sensors[9],
       accely: sensors[10],
       brujula: sensors[11],
-      presion: sensors[12],
-      dirViento: sensors[13],
+      tempInterna: sensors[12],
+      humedad: sensors[13],
       velViento: sensors[14],
-      tempInterna: sensors[15],
-      humedad: sensors[16],
+      dirViento: sensors[15],
+      // clutch01: sensors[16],
+      // clutch02: sensors[17],
+      // ctrlSale1: sensors[18],
+      // ctrlSale2: sensors[19],
+      // ctrlTimon1: sensor[20],
+      // ctrlTimon2: sensors[21],
+      // curso: sensors[22],
+      // rumbo: sensors[23],
+      // direccion: sensors[24]
     });
   }
 
