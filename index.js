@@ -39,11 +39,11 @@ let trama = [
 io.on("connection", (socket) => {
   console.log("nuevo socket conectado");
   socket.on("xbee:mision", (data) => {
-    console.log("mision: ",data);
+    console.log("mision: ", data);
     trama[2].mision = data;
     const aux = [...trama];
     aux.splice(1, 1);
-    console.log(aux)
+    console.log(aux);
     xbee.write(stringify(aux));
   });
   socket.on("xbee:state", (data) => {
@@ -51,7 +51,7 @@ io.on("connection", (socket) => {
     trama[0].state = data;
     const aux = [...trama];
     data == "M" ? aux.splice(2, 1) : aux.splice(1, 1);
-    console.log(aux)
+    console.log(aux);
     xbee.write(stringify(aux));
   });
   socket.on("xbee:control", (data) => {
@@ -64,7 +64,7 @@ io.on("connection", (socket) => {
     trama[1].control.rudder = data[1];
     const aux = [...trama];
     aux.splice(2, 1);
-    console.log(aux)
+    console.log(aux);
     xbee.write(stringify(aux));
   });
 });
@@ -110,7 +110,7 @@ xbee.on("data", (line) => {
     sensors = bufferAux[0].split("/");
     buffer = buffer.replace(bufferAux[0] + "//", "");
     //console.log(sensors);
-    if(sensors[0] = "CC") {
+    if ((sensors[0] = "CC")) {
       console.log(sensors);
       io.emit("xbee:dataauto", {
         ditanciapnrecta: sensors[1],
@@ -125,10 +125,9 @@ xbee.on("data", (line) => {
         distbefact: sensors[10],
         distanciap0w: sensors[11],
         waypoint: sensors[12],
-        t: sensors[13]
-      })
-    }
-    else {
+        t: sensors[13],
+      });
+    } else {
       io.emit("xbee:datos", {
         lat: sensors[0],
         lng: sensors[1],
@@ -157,7 +156,6 @@ xbee.on("data", (line) => {
         // direccion: sensors[24]
       });
     }
-    
   }
   //xbee.write('Recibido');
 });
