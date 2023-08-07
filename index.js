@@ -15,57 +15,49 @@ const SerialPort = require("serialport");
 const Readline = SerialPort.parsers.Readline;
 const parser = new Readline();
 
-const xbee = new SerialPort("COM9", { baudRate: 57600 });
+const xbee = new SerialPort("COM3", { baudRate: 57600 });
 
 xbee.pipe(parser);
 xbee.on("open", () => {
   console.log("Puerto abierto");
 });
 
-let trama = [
+let trama =
   {
     state: "M",
-  },
-  {
     control: {
-      sail: 0,
       rudder: 0,
+      sail1: 0,
+      sail2: 0,
+      clutch: 0,
     },
-  },
-  {
     mision: [],
-  },
-];
+  };
+
 io.on("connection", (socket) => {
   console.log("nuevo socket conectado");
   socket.on("xbee:mision", (data) => {
-    console.log("mision: ", data);
-    trama[2].mision = data;
-    const aux = [...trama];
-    aux.splice(1, 1);
-    console.log(aux);
-    xbee.write(stringify(aux));
+    trama.mision = data;
+    const aux = { state: trama.state, mision: trama.mision};
+    console.log("xbee:mision: ", aux);
+    xbee.write(JSON.stringify(aux));
   });
   socket.on("xbee:state", (data) => {
-    console.log("state: ", data);
-    trama[0].state = data;
-    const aux = [...trama];
-    data == "M" ? aux.splice(2, 1) : aux.splice(1, 1);
-    console.log(aux);
-    xbee.write(stringify(aux));
+    trama.state = data;
+    console.log("xbee:state: ",data);
+    //xbee.write(JSON.stringify(aux));
   });
   socket.on("xbee:control", (data) => {
     data = data.split("/");
-    console.log(data);
-    const sail = data[0];
-    const rudder = data[1];
-    console.log("control: ", sail, rudder);
-    trama[1].control.sail = data[0];
-    trama[1].control.rudder = data[1];
-    const aux = [...trama];
-    aux.splice(2, 1);
-    console.log(aux);
-    xbee.write(stringify(aux));
+    trama.control.rudder = data[0];
+    trama.control.sail1 = data[1];
+    trama.control.sail2 = data[2];
+    trama.control.clutch = data[3];
+    const aux = { state: trama.state, control: trama.control};
+    console.log("xbee:control: ", aux);
+    if(aux.state == "M" && data[0] != "0"){
+      xbee.write(JSON.stringify(aux));
+    }
   });
 });
 
@@ -110,10 +102,10 @@ xbee.on("data", (line) => {
     sensors = bufferAux[0].split("/");
     buffer = buffer.replace(bufferAux[0] + "//", "");
     //console.log(sensors);
-    if ((sensors[0] = "CC")) {
-      console.log(sensors);
+    if ((sensors[0] == "CC")) {
+      //console.log(sensors);
       io.emit("xbee:dataauto", {
-        ditanciapnrecta: sensors[1],
+        distanciapnrecta: sensors[1],
         dhin: sensors[2],
         dh: sensors[3],
         as: sensors[4],
@@ -128,6 +120,7 @@ xbee.on("data", (line) => {
         t: sensors[13],
       });
     } else {
+      //console.log(sensors);
       io.emit("xbee:datos", {
         lat: sensors[0],
         lng: sensors[1],
@@ -145,6 +138,9 @@ xbee.on("data", (line) => {
         humedad: sensors[13],
         velViento: sensors[14],
         dirViento: sensors[15],
+        posVela: sensors[16],
+        bateria: sensors[17],
+        paneles: sensors[18],
         // clutch01: sensors[16],
         // clutch02: sensors[17],
         // ctrlSale1: sensors[18],
