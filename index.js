@@ -100,7 +100,7 @@ xbee.on("data", (line) => {
   if (bufferAux.length > 1) {
     sensors = bufferAux[0].split("/");
     buffer = buffer.replace(bufferAux[0] + "//", "");
-    //console.log(sensors);
+    console.log(sensors);
     if (sensors[0] == "CC") {
       //console.log(sensors);
       io.emit("xbee:dataauto", {
