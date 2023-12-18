@@ -118,18 +118,18 @@ xbee.on("data", (line) => {
         waypoint: sensors[12],
         t: sensors[13],
       });
-    } else if (sensors[0] == "GPS") {
-      io.emit("xbee:gps", {
-        lat: sensors[0],
-        lng: sensors[1],
-        sat: sensors[2],
-        vel: sensors[3],
+    } else if (sensors[0] == "GPS1") {
+      io.emit("xbee:datos", {
+        lat: sensors[1],
+        lng: sensors[2],
+        age: sensors[3],
         alt: sensors[4],
-        day: sensors[5],
-        month: sensors[6],
+        vel: sensors[5],
+        sec: sensors[6],
+        centisec: sensors[7],
       });
     } else if (sensors[0] == "ORD") {
-      io.emit("xbee:ord", {
+      io.emit("xbee:datos", {
         m: sensors[0],
         timon: sensors[1],
         sail1: sensors[2],
@@ -138,19 +138,25 @@ xbee.on("data", (line) => {
       });
     } else {
       io.emit("xbee:datos", {
-        mx: sensors[0],
-        my: sensors[1],
-        mz: sensors[2],
-        accX: sensors[3],
-        accY: sensors[4],
-        accZ: sensors[5],
-        gyrX: sensors[6],
-        gyrY: sensors[7],
-        gyrZ: sensors[8],
-        temp: sensors[9],
-        vel_wind: sensors[10],
-        dir_wind: sensors[11],
-        dt: sensors[12],
+        roll: sensors[1],
+        pitch: sensors[2],
+        hdn: sensors[3],
+        rwd: sensors[3],
+        vwind: sensors[4],
+        dt: sensors[5],
+        // mx: sensors[0],
+        // my: sensors[1],
+        // mz: sensors[2],
+        // accX: sensors[3],
+        // accY: sensors[4],
+        // accZ: sensors[5],
+        // gyrX: sensors[6],
+        // gyrY: sensors[7],
+        // gyrZ: sensors[8],
+        // temp: sensors[9],
+        // vel_wind: sensors[10],
+        // dir_wind: sensors[11],
+        // dt: sensors[12],
       });
       //console.log(sensors);
       // io.emit("xbee:datos", {
