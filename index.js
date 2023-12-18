@@ -48,13 +48,16 @@ io.on("connection", (socket) => {
   });
   socket.on("xbee:control", (data) => {
     data = data.split("/");
-    trama.control.rudder = data[0];
-    trama.control.sail1 = data[1];
-    trama.control.sail2 = data[2];
-    trama.control.clutch = data[3];
-    const aux = { state: trama.state, control: trama.control };
-    console.log("xbee:control: ", aux);
-    if (aux.state == "M" && data[0] != "0") {
+    console.log("xbee:control: ", data);
+    if (trama.state == "M" && data[0] != "0") {
+      trama.control.rudder = data[0];
+      trama.control.sail1 = data[1];
+      trama.control.sail2 = data[2];
+      trama.control.clutch = data[3];
+      const aux = { state: trama.state, control: trama.control };
+      xbee.write(JSON.stringify(aux));
+    } else if (trama.state == "S") {
+      const aux = { state: trama.state, control: data[0] };
       xbee.write(JSON.stringify(aux));
     }
   });
